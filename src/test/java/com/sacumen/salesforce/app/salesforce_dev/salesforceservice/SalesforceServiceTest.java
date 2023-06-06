@@ -8,10 +8,7 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
@@ -50,6 +47,46 @@ import static org.mockito.Mockito.*;
         String result = salesforceService.retrieveEventData();
         // Verify the result
         assertEquals("[{LogFile=log.txt, EventType=Event, LogFileLength=1024, Id=123, LogDate=2023-05-30}]", result);
+    }
+    @Test
+    public void testRetrieveaccountData() {
+
+        doReturn(forceApiMock).when(salesforceService).createSaleforeceConnection();
+        QueryResult mockQueryResult = new QueryResult<>();
+        List<Map<String, Object>> records = new ArrayList<>();
+        Map record = new HashMap<>();
+        record.put("Id", "123");
+        record.put("Name", "USER Account");
+        records.add(record);
+        mockQueryResult.setRecords(records);
+        when(forceApiMock.query("SELECT Id, Name FROM Account")).thenReturn(mockQueryResult);
+
+        ForceApi forceApiMock = mock(ForceApi.class);
+        salesforceService.setForceApi(forceApiMock);
+        String result = salesforceService.retrieveaccountData();
+        assertEquals("[{Id=123, Name=Test Account}]", result);
+    }
+
+
+    @Test
+    public void testRetrieveuserData() {
+
+        doReturn(forceApiMock).when(salesforceService).createSaleforeceConnection();
+        QueryResult mockQueryResult = new QueryResult<>();
+        List<Map<String, Object>> records = new ArrayList<>();
+        Map record = new HashMap<>();
+        record.put("Id", "123");
+        record.put("name", "USER DATA");
+        record.put("ProfileId", "456");
+        record.put("IsActive", true);
+        QueryResult<Map> queryResult = new QueryResult<>();
+        queryResult.setRecords(Collections.singletonList(record));
+        when(forceApiMock.query("SELECT Id,name,ProfileId,IsActive FROM User")).thenReturn(queryResult);
+
+        ForceApi forceApiMock = mock(ForceApi.class);
+        salesforceService.setForceApi(forceApiMock);
+        String result = salesforceService.retrieveUserData();
+        assertEquals("[{ProfileId=456, IsActive=true, name=Test User, Id=123}]", result);
     }
 
 
